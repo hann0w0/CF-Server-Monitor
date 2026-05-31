@@ -23,7 +23,7 @@
     </div>
 
     <div v-else class="container" id="admin-content">
-      <TerminalHeader :title="trans.adminPanel" />
+      <TerminalHeader :title="settings.admin_title || trans.adminPanel" />
       
       <div class="main-panel">
         <div class="panel-header">
@@ -162,6 +162,16 @@
           <div class="settings-grid">
             <div class="settings-section">
               <div class="section-title"><span>▸</span> {{ trans.appearance }}</div>
+
+              <div class="form-group">
+                <label class="form-label">{{ trans.siteTitle }}</label>
+                <input type="text" v-model="settings.site_title" class="form-input" :placeholder="'Cloudflare Server Monitor'">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">{{ trans.adminTitle }}</label>
+                <input type="text" v-model="settings.admin_title" class="form-input" :placeholder="'Admin Panel'">
+              </div>
 
               <div class="form-group">
                 <label class="form-label">{{ trans.bgImage }}</label>
@@ -357,6 +367,14 @@ const API_BASE = window.location.origin
 
 const trans = computed(() => translations[currentLang.value] || translations.en)
 
+const getMessage = (msg) => {
+  if (typeof msg === 'string') return msg
+  if (typeof msg === 'object' && msg !== null) {
+    return msg[currentLang.value] || msg.en || Object.values(msg)[0] || ''
+  }
+  return ''
+}
+
 const isLoggedIn = ref(false)
 const loginForm = ref({ username: '', password: '' })
 const loginError = ref('')
@@ -369,6 +387,8 @@ const newServerName = ref('')
 const newServerGroup = ref('Default')
 
 const settings = ref({
+  site_title: '',
+  admin_title: '',
   custom_bg: '',
   custom_head: '',
   custom_script: '',
@@ -447,6 +467,8 @@ const loadSettings = async () => {
       const data = await res.json()
       const settingsData = data.settings || {}
       settings.value = {
+        site_title: settingsData.site_title || '',
+        admin_title: settingsData.admin_title || '',
         custom_bg: settingsData.custom_bg || '',
         custom_head: settingsData.custom_head || '',
         custom_script: settingsData.custom_script || '',
@@ -470,6 +492,8 @@ const saveSettings = async () => {
     const data = {
       action: 'save_settings',
       settings: {
+        site_title: settings.value.site_title,
+        admin_title: settings.value.admin_title,
         custom_bg: settings.value.custom_bg,
         custom_head: settings.value.custom_head,
         custom_script: settings.value.custom_script,
@@ -486,15 +510,15 @@ const saveSettings = async () => {
 
     try {
       const res = await adminApi(data)
+      const result = await res.json()
       if (res.ok) {
-        alert(trans.configSaved)
+        alert(getMessage(result.message) || 'Success')
         location.reload()
       } else {
-        const err = await res.json()
-        alert(trans.saveFailed + (err.error || trans.saveFailedUnknown))
+        alert(result.error || 'Fail')
       }
     } catch (e) {
-      alert(trans.saveFailed + e.message)
+      alert('Fail: ' + e.message)
     }
   }
 
@@ -531,15 +555,15 @@ const addServer = async () => {
 
     try {
       const res = await adminApi({ action: 'add', name })
+      const result = await res.json()
       if (res.ok) {
-        const data = await res.json()
-        alert('[OK] ' + (data.message || trans.serverAdded))
+        alert(getMessage(result.message) || 'Success')
         location.reload()
       } else {
-        alert(trans.addFailed)
+        alert(result.error || 'Fail')
       }
     } catch (e) {
-      alert(trans.addFailed + ': ' + e.message)
+      alert('Fail: ' + e.message)
     }
   }
 
@@ -620,14 +644,15 @@ const saveEdit = async () => {
 
     try {
       const res = await adminApi(data)
+      const result = await res.json()
       if (res.ok) {
-        alert(trans.serverUpdated)
+        alert(getMessage(result.message) || 'Success')
         location.reload()
       } else {
-        alert(trans.saveFailed)
+        alert(result.error || 'Fail')
       }
     } catch (e) {
-      alert(trans.saveFailed + e.message)
+      alert('Fail: ' + e.message)
     }
   }
 
@@ -643,13 +668,15 @@ const saveEdit = async () => {
   const confirmDelete = async () => {
     try {
       const res = await adminApi({ action: 'delete', id: deleteServerId.value })
+      const result = await res.json()
       if (res.ok) {
+        alert(getMessage(result.message) || 'Success')
         location.reload()
       } else {
-        alert(trans.deleteFailed)
+        alert(result.error || 'Fail')
       }
     } catch (e) {
-      alert(trans.deleteFailed + ': ' + e.message)
+      alert('Fail: ' + e.message)
     }
   }
 
@@ -659,13 +686,15 @@ const saveEdit = async () => {
 
     try {
       const res = await adminApi({ action: 'batch_delete', ids: selectedServers.value })
+      const result = await res.json()
       if (res.ok) {
+        alert(getMessage(result.message) || 'Success')
         location.reload()
       } else {
-        alert(trans.deleteFailed)
+        alert(result.error || 'Fail')
       }
     } catch (e) {
-      alert(trans.deleteFailed + ': ' + e.message)
+      alert('Fail: ' + e.message)
     }
   }
 

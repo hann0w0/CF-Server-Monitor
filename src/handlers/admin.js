@@ -51,7 +51,13 @@ export async function handleAdminAPI(request, env, sys) {
       if (data.settings && ('tg_notify' in data.settings || 'tg_bot_token' in data.settings || 'tg_chat_id' in data.settings)) {
         clearNotificationSettingsCache();
       }
-      return new Response(JSON.stringify({ success: true, message: '设置已保存' }), {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: {
+          en: 'Update Success',
+          zh: '更新成功'
+        }
+      }), {
         headers: { 'Content-Type': 'application/json' }
       });
     } 
@@ -91,7 +97,10 @@ export async function handleAdminAPI(request, env, sys) {
       return new Response(JSON.stringify({ 
         success: true, 
         id: id,
-        message: `服务器 "${name}" 已添加` 
+        message: {
+          en: `Server "${name}" added`,
+          zh: `服务器 "${name}" 已添加`
+        }
       }), {
         headers: { 'Content-Type': 'application/json' }
       });
@@ -109,7 +118,13 @@ export async function handleAdminAPI(request, env, sys) {
       await env.DB.prepare('DELETE FROM metrics_aggregated WHERE server_id = ?').bind(id).run();
       await env.DB.prepare('DELETE FROM servers WHERE id = ?').bind(id).run();
       
-      return new Response(JSON.stringify({ success: true, message: '服务器已删除' }), {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: {
+          en: 'Server deleted',
+          zh: '服务器已删除'
+        }
+      }), {
         headers: { 'Content-Type': 'application/json' }
       });
     } 
@@ -132,7 +147,13 @@ export async function handleAdminAPI(request, env, sys) {
         await env.DB.prepare('UPDATE servers SET sort_order = ? WHERE id = ?').bind(i, orders[i]).run();
       }
       
-      return new Response(JSON.stringify({ success: true, message: '排序已保存' }), {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: {
+          en: 'Sort order saved',
+          zh: '排序已保存'
+        }
+      }), {
         headers: { 'Content-Type': 'application/json' }
       });
     }
@@ -176,7 +197,13 @@ export async function handleAdminAPI(request, env, sys) {
         ).run();
       }
       
-      return new Response(JSON.stringify({ success: true, message: '服务器信息已更新' }), {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: {
+          en: 'Server updated',
+          zh: '服务器信息已更新'
+        }
+      }), {
         headers: { 'Content-Type': 'application/json' }
       });
     }
@@ -205,7 +232,10 @@ export async function handleAdminAPI(request, env, sys) {
       
       return new Response(JSON.stringify({ 
         success: true, 
-        message: `已删除 ${ids.length} 台服务器` 
+        message: {
+          en: `${ids.length} server(s) deleted`,
+          zh: `已删除 ${ids.length} 台服务器`
+        }
       }), {
         headers: { 'Content-Type': 'application/json' }
       });
@@ -290,7 +320,10 @@ export async function handleAdminAPI(request, env, sys) {
       
       return new Response(JSON.stringify({ 
         success: true, 
-        message: `已清理 ${days} 天前的历史数据` 
+        message: {
+          en: `Cleaned history data older than ${days} days`,
+          zh: `已清理 ${days} 天前的历史数据`
+        }
       }), {
         headers: { 'Content-Type': 'application/json' }
       });

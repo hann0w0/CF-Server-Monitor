@@ -39,19 +39,22 @@ async function loadFrontendFiles(env) {
 function injectAppearanceSettings(html, settings) {
   let modifiedHtml = html;
 
-  // 1. 注入 custom_head (在 </head> 标签前)
+  // 1. 更新页面标题
+  const siteTitle = settings.site_title || 'Server Monitor';
+  modifiedHtml = modifiedHtml.replace(/<title>.*<\/title>/, `<title>${siteTitle}</title>`);
+
+  // 2. 注入 custom_head (在 </head> 标签前)
   if (settings.custom_head) {
     modifiedHtml = modifiedHtml.replace('</head>', `${settings.custom_head}\n</head>`);
   }
 
-  // 2. 注入 custom_script (在 </body> 标签前)
+  // 3. 注入 custom_script (在 </body> 标签前)
   if (settings.custom_script) {
     modifiedHtml = modifiedHtml.replace('</body>', `<script>${settings.custom_script}</script>\n</body>`);
   }
 
-  // 3. 注入 custom_bg (添加背景样式到 body)
+  // 4. 注入 custom_bg (添加背景样式到 body)
   if (settings.custom_bg) {
-    // 在 style 标签中添加背景样式
     const bgStyle = `\n<style>\n  body { background-image: url('${settings.custom_bg}'); background-size: cover; background-attachment: fixed; background-position: center; }\n</style>\n`;
     modifiedHtml = modifiedHtml.replace('</head>', `${bgStyle}\n</head>`);
   }
